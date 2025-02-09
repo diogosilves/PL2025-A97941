@@ -13,4 +13,5 @@
 **ID:** a97941
 
 **Fotografia:**
-![Fotografia do Aluno](../descaregar)
+
+![Fotografia do Aluno](./Photo.jpg)
