@@ -1,9 +1,5 @@
 # 14/02/2025
 
-# Autor
-* A97941
-* Diogo Filipe Oliveira da Silva
-
 ## TPC2: Análise de um dataset de obras musicais
 
 1. Proibido o uso do módulo CSV do Python;
@@ -28,3 +24,7 @@ Durante esta travessia:
    * Para armazenar os títulos das obras associadas a cada período, usei um dicionário (obrasPorPeriodo), onde cada período serve como chave e a respetiva lista de títulos como valor.
 
 Por fim, ordenei a lista de compositores e também as listas de títulos de obras dentro de cada período para manter os dados organizados.
+
+# Autor
+* A97941
+* Diogo Filipe Oliveira da Silva

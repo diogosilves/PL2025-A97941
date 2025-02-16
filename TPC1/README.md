@@ -1,9 +1,5 @@
 # 07/02/2025
 
-# Autor
-* A97941
-* Diogo Filipe Oliveira da Silva
-
 ## TPC1: Somador on/off: criar um programa em Python
 
 1. Proibido o uso de expressões regulares;
@@ -21,3 +17,7 @@ Caso encontre o caractere "=", é apresentado o valor acumulado até aquele mome
 A extração dos números ocorre percorrendo caractere por caractere. 
 Quando um número é encontrado, ele é acumulado em uma string temporária (atual). Assim que um caractere que não seja um número aparece, 
 a sequência acumulada é convertida em um inteiro e somada ao total, caso o estado da soma esteja ativado (ON).
+
+## Autor
+* A97941
+* Diogo Filipe Oliveira da Silva
