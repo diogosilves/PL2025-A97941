@@ -1,6 +1,10 @@
 # 14/02/2025
 
-# TPC2: Análise de um dataset de obras musicais
+# Autor
+* A97941
+* Diogo Filipe Oliveira da Silva
+
+## TPC2: Análise de um dataset de obras musicais
 
 1. Proibido o uso do módulo CSV do Python;
 2. Um programa que leia o dataset, processe-o e crie os seguintes resultados:
@@ -9,9 +13,7 @@
    * Dicionário em que a cada período está a associada uma lista alfabética dos títulos das obras
 desse período.
 
-## Autor
-* A97941
-* Diogo Filipe Oliveira da Silva
+
 
 ### Solução Adquirida
 

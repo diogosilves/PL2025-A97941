@@ -1,15 +1,17 @@
 # 07/02/2025
 
-# TPC1: Somador on/off: criar um programa em Python
+# Autor
+* A97941
+* Diogo Filipe Oliveira da Silva
+
+## TPC1: Somador on/off: criar um programa em Python
 
 1. Proibido o uso de expressões regulares;
 2. Um programa que some todas as sequências de digitos que encontre num texto
     * Sempre que encontrar a string "Off" ou "On" em qualquer combinação de maiusculas ou minusculas, o comportamento é desligado ou ligado;
     * Sempre que encontrar o caráter "=", o resultado da soma é colocado na saída.
 
-## Autor
-* A97941
-* Diogo Filipe Oliveira da Silva
+
 
 ### Solução Adquirida
 Para a resolução deste problema, optei por ler todo o conteúdo do arquivo de uma vez, armazenando-o em uma string. 
