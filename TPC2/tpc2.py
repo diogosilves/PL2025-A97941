@@ -8,7 +8,7 @@ compositores = []
 numeroDeObrasPorPeriodo = {}
 obrasPorPeriodo = {}
 
-count = 1
+count = 0
 while line := file.readline():
     reg = re.split(r';(?=(?:[^"]*"[^"]*")*[^"]*$)', line)
     while len(reg) <7:
