@@ -9,5 +9,5 @@ while line := file.readline():
 
     line = re.sub(r'(.*) \*(.*)\*', r'\1 <i>\2</i>', line)
 
-
+    line = re.sub(r'(\d+\. (.*)\n)+', r'<ol>\n<li>\2</li>\n</ol>', line)    #WRONG
     print(line, end="")
