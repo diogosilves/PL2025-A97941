@@ -16,7 +16,11 @@ Syntax" da Cheat Sheet:
      
      Out: < ol > < li >Primeiro item< /li> < li >Segundo item< /li> < li >Terceiro item< /li> < /ol>
    - **Link:** \[texto](endereço URL) In: Como pode ser consultado em página da UC Out: Como pode ser consultado em página da UC 
-   - **Imagem:** !\[texto alternativo](path para a imagem) In: Como se vê na imagem seguinte: ! \[imagem dum coelho] (http://www.coellho.com) ... Out: Como se vê na imagem seguinte: < img src="http://www.coellho.com" alt="imagem dum coelho"/> ...
+   - **Imagem:** !\[texto alternativo](path para a imagem) 
+
+     In: Como se vê na imagem seguinte: ! \[imagem dum coelho] (http://www.coellho.com) ... 
+
+     Out: Como se vê na imagem seguinte: < img src="http://www.coellho.com" alt="imagem dum coelho"/> ...
 
 ### Solução Adquirida
 Esta solução foi implementada utilizando expressões regulares para identificar e converter as linhas escritas em markdown.
