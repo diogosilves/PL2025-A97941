@@ -19,5 +19,6 @@ select ?nome ?desc where {
 
 ### Solução Adquirida
 
+# Autor
 * A97941
 * Diogo Filipe Oliveira da Silva
