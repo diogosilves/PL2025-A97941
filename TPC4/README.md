@@ -18,6 +18,22 @@ select ?nome ?desc where {
 
 
 ### Solução Adquirida
+Tokens obtidos:
+- SELECT : select
+- WHERE : where
+- LIMIT : limite
+- DOT : .
+- LCB : {
+- RCB : }
+- VAR : variavel
+- LANG : lingua
+- URI : QName
+- A : a
+- INT : inteiro
+- COMMENT : comentario
+- STR : string
+
+Para terminar faltava apenas definir o regex de cada token.
 
 # Autor
 * A97941
