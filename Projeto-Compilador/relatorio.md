@@ -113,10 +113,24 @@ A gramática implementada segue a estrutura do Pascal Standard:
 ```
 program → PROGRAM ID SEMICOLON program_body DOT
 program_body → function_declarations block | block
+```
+
+**Declarações de Funções:**
+```
+function_declarations → function_declarations function_declaration | function_declaration
 function_declaration → FUNCTION ID LPAREN parameter_list RPAREN COLON type SEMICOLON block SEMICOLON
+                     | FUNCTION ID LPAREN RPAREN COLON type SEMICOLON block SEMICOLON
+parameter_list → parameter_list SEMICOLON parameter | parameter
+parameter → id_list COLON type
+```
+
+**Blocos e Declarações:**
+```
 block → declarations compound_statement
 declarations → VAR declaration_list | empty
+declaration_list → declaration_list declaration | declaration
 declaration → id_list COLON type SEMICOLON
+id_list → id_list COMMA ID | ID
 ```
 
 **Tipos:**
@@ -125,22 +139,58 @@ type → INTEGER_TYPE | REAL_TYPE | STRING_TYPE | BOOLEAN_TYPE | CHAR_TYPE | arr
 array_type → ARRAY LBRACKET INTEGER DOTDOT INTEGER RBRACKET OF type
 ```
 
+**Comandos Compostos:**
+```
+compound_statement → BEGIN statement_list END
+statement_list → statement_list SEMICOLON statement | statement
+statement → assignment_statement | if_statement | while_statement | for_statement 
+          | io_statement | compound_statement | empty
+```
+
+**Atribuições:**
+```
+assignment_statement → var ASSIGN expr_bool | ID ASSIGN expr_bool
+```
+
+**Estruturas de Controle:**
+```
+if_statement → IF expr_bool THEN statement | IF expr_bool THEN statement ELSE statement
+while_statement → WHILE expr_bool DO statement
+for_statement → FOR ID ASSIGN expr TO expr DO statement 
+              | FOR ID ASSIGN expr DOWNTO expr DO statement
+```
+
+**Entrada e Saída:**
+```
+io_statement → WRITE LPAREN write_list RPAREN | WRITELN LPAREN write_list RPAREN
+             | READ LPAREN read_list RPAREN | READLN LPAREN read_list RPAREN
+             | WRITE | WRITELN | READ | READLN
+write_list → write_list COMMA write_param | write_param
+read_list → read_list COMMA var | var
+write_param → expr_bool | STRING
+```
+
 **Expressões:**
 ```
 expr_bool → expr_bool OR expr_and | expr_and
 expr_and → expr_and AND expr_rel | expr_rel
 expr_rel → expr op_rel expr | expr
+op_rel → EQ | NEQ | LT | GT | LE | GE
 expr → expr PLUS termo | expr MINUS termo | termo
 termo → termo TIMES fator | termo DIVIDE fator | termo DIV fator | termo MOD fator | fator
 fator → const | var | function_call | LPAREN expr_bool RPAREN | NOT fator | MINUS fator
 ```
 
-**Instruções:**
+**Chamadas de Função:**
 ```
-statement → assignment_statement | if_statement | while_statement | for_statement | io_statement | compound_statement
-if_statement → IF expr_bool THEN statement | IF expr_bool THEN statement ELSE statement
-while_statement → WHILE expr_bool DO statement
-for_statement → FOR ID ASSIGN expr TO expr DO statement | FOR ID ASSIGN expr DOWNTO expr DO statement
+function_call → LENGTH LPAREN expr_bool RPAREN | ID LPAREN argument_list RPAREN | ID LPAREN RPAREN
+argument_list → argument_list COMMA expr_bool | expr_bool
+```
+
+**Constantes e Variáveis:**
+```
+const → INTEGER | REAL | STRING | CHAR_LITERAL | TRUE | FALSE
+var → ID | ID LBRACKET expr RBRACKET
 ```
 
 **Precedência de Operadores:**
