@@ -19,7 +19,8 @@ a97941 - Diogo Filipe Oliveira da Silva
     3.2. [Como funciona?](#32-como-funciona)
 4. [Analisador Sintático](#4-analisador-sintático)
     4.1. [Estrutura](#41-estrutura)
-    4.2. [Como funciona?](#42-como-funciona)
+    4.2. [Gramática](#42-gramática)
+    4.3. [Como funciona?](#43-como-funciona)
 5. [Analisador Semântico](#5-analisador-semântico)
     5.1. [Estrutura](#51-estrutura)
     5.2. [Como funciona?](#52-como-funciona)
@@ -104,7 +105,57 @@ Gera o nó:
 ('program', 'Ola', <nó do bloco>)
 ```
 
-#### 4.2. Como funciona?
+#### 4.2. Gramática
+
+A gramática implementada segue a estrutura do Pascal Standard:
+
+**Estrutura Principal:**
+```
+program → PROGRAM ID SEMICOLON program_body DOT
+program_body → function_declarations block | block
+function_declaration → FUNCTION ID LPAREN parameter_list RPAREN COLON type SEMICOLON block SEMICOLON
+block → declarations compound_statement
+declarations → VAR declaration_list | empty
+declaration → id_list COLON type SEMICOLON
+```
+
+**Tipos:**
+```
+type → INTEGER_TYPE | REAL_TYPE | STRING_TYPE | BOOLEAN_TYPE | CHAR_TYPE | array_type
+array_type → ARRAY LBRACKET INTEGER DOTDOT INTEGER RBRACKET OF type
+```
+
+**Expressões:**
+```
+expr_bool → expr_bool OR expr_and | expr_and
+expr_and → expr_and AND expr_rel | expr_rel
+expr_rel → expr op_rel expr | expr
+expr → expr PLUS termo | expr MINUS termo | termo
+termo → termo TIMES fator | termo DIVIDE fator | termo DIV fator | termo MOD fator | fator
+fator → const | var | function_call | LPAREN expr_bool RPAREN | NOT fator | MINUS fator
+```
+
+**Instruções:**
+```
+statement → assignment_statement | if_statement | while_statement | for_statement | io_statement | compound_statement
+if_statement → IF expr_bool THEN statement | IF expr_bool THEN statement ELSE statement
+while_statement → WHILE expr_bool DO statement
+for_statement → FOR ID ASSIGN expr TO expr DO statement | FOR ID ASSIGN expr DOWNTO expr DO statement
+```
+
+**Precedência de Operadores:**
+```
+precedence = (
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('left', 'EQ', 'NEQ', 'LT', 'LE', 'GT', 'GE'),
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIVIDE', 'DIV', 'MOD'),
+    ('right', 'UMINUS', 'NOT'),
+)
+```
+
+#### 4.3. Como funciona?
 Durante a execução do compilador, o parser é invocado com a lista de tokens produzida pelo lexer. Se a sequência de tokens não corresponder a nenhuma regra da gramática, é emitido um erro sintático, com indicação da linha onde ocorreu a falha.
 
 ## 5. Analisador Semântico
@@ -122,27 +173,136 @@ Durante este percurso, são realizadas:
 Ao encontrar uma instrução como por exemplo ```x := 5``` o compilador consulta o dicionário para verificar se x foi declarado previamente e qual o seu tipo.
 Caso algum destes critérios não seja satisfeito, é gerado um erro semântico, e a compilação é interrompida.
 
+**Exemplo de verificação semântica:**
+```pascal
+program teste;
+var x: integer;
+    y: real;
+begin
+  x := 5;        // OK: integer := integer
+  y := x;        // OK: real := integer (conversão implícita)
+  x := y;        // ERRO: integer := real (perda de precisão)
+  writeln(z);    // ERRO: variável 'z' não declarada
+end.
+```
+
+O analisador semântico detecta e reporta os erros:
+- "Erro semântico: não é possível atribuir valor do tipo 'real' à variável 'x' do tipo 'integer'"
+- "Erro semântico: variável 'z' não declarada"
+
 ## 6. Geração de Código para a Máquina Virtual
 A fase final do compilador consiste na geração de código para uma máquina virtual (VM). Esta etapa é responsável por transformar a Árvore Sintática Abstrata (AST), previamente validada pelas fases anteriores, numa sequência de instruções simples e executáveis por uma VM com arquitetura baseada em pilha (stack-based).
 
 #### 6.1. Input/Output 
-As chamadas a readln e writeln são reconhecidas pelo analisador sintático como comandos especiais, pois, ao contrário das funções definidas pelo utilizador, não exigem declaração prévia. Estas funções fazem parte do conjunto de funcionalidades básicas da linguagem Pascal e são traduzidas diretamente para instruções específicas da máquina virtual, como ``CALL writeln`` ou ``READ``.
+As chamadas a readln e writeln são reconhecidas pelo analisador sintático como comandos especiais, pois, ao contrário das funções definidas pelo utilizador, não exigem declaração prévia. Estas funções fazem parte do conjunto de funcionalidades básicas da linguagem Pascal e são traduzidas diretamente para instruções específicas da máquina virtual.
+
+**Exemplo:**
+```pascal
+program io_exemplo;
+var x: integer;
+begin
+  readln(x);
+  writeln('Valor lido: ', x);
+end.
+```
+
+Gera o código VM:
+```
+READ
+ATOI
+STOREG 0
+PUSHS "Valor lido: "
+WRITES
+PUSHG 0
+WRITEI
+WRITELN
+```
 
 #### 6.2. Condições
 As instruções condicionais da linguagem Pascal, como ``if ... then`` ou ``if ... then ... else``, são transformadas pelo compilador em blocos de código que usam saltos e etiquetas (labels) na máquina virtual para controlar o fluxo de execução.
 
 Durante a geração de código, a condição é avaliada primeiro e o seu resultado é colocado no topo da pilha. Em seguida, o compilador emite uma instrução JZ (jump if zero), que salta para o bloco else se o valor for 0.
 
-Se existir um bloco else, após o bloco then é inserida uma instrução JMP (salto incondicional) para garantir que o bloco else não é executado quando a condição é verdadeira.
+**Exemplo:**
+```pascal
+if x > 5 then
+  writeln('Grande')
+else
+  writeln('Pequeno');
+```
 
-Este mecanismo permite simular o comportamento de decisões condicionais da linguagem Pascal usando apenas instruções simples da VM baseadas em valores empilhados.
+Gera o código VM:
+```
+PUSHG 0    // x
+PUSHI 5    // 5
+SUP        // x > 5
+JZ L1      // salta para else se falso
+PUSHS "Grande"
+WRITES
+JUMP L2    // salta para fim
+L1:
+PUSHS "Pequeno"
+WRITES
+L2:
+```
 
 #### 6.3. Ciclos
 Os ciclos while e for da linguagem Pascal são convertidos para instruções de máquina virtual que utilizam saltos e etiquetas para controlar a repetição.
 
-No ciclo **``while``**, a condição é verificada no início de cada iteração. O compilador gera um label que marca o início do ciclo, seguido pelo código que avalia a condição, empilhando um booleano. Em caso de falso, a instrução JZ (jump if zero) faz saltar a execução para fora do ciclo. Se a condição for verdadeira, o corpo do ciclo é executado, e no fim uma instrução JMP redireciona a execução de volta ao início, repetindo o processo.
+No ciclo **``while``**, a condição é verificada no início de cada iteração. O compilador gera um label que marca o início do ciclo, seguido pelo código que avalia a condição, empilhando um booleano. Em caso de falso, a instrução JZ (jump if zero) faz saltar a execução para fora do ciclo.
 
-O ciclo **``for``** segue uma lógica semelhante, mas com controle automático de uma variável de iteração. O compilador começa por inicializar essa variável com o valor inicial e gera uma condição que compara o valor atual ao limite. Caso a condição seja verdadeira, executa-se o corpo do ciclo. No final, a variável é incrementada, e o ciclo repete-se. Quando o valor ultrapassa o limite, a condição falha e uma instrução JZ termina a repetição.
+**Exemplo de while:**
+```pascal
+while x > 0 do
+begin
+  writeln(x);
+  x := x - 1;
+end;
+```
+
+Gera o código VM:
+```
+L0:
+PUSHG 0    // x
+PUSHI 0    // 0
+SUP        // x > 0
+JZ L1      // sair se falso
+PUSHG 0
+WRITEI
+PUSHG 0
+PUSHI 1
+SUB
+STOREG 0   // x := x - 1
+JUMP L0    // voltar ao início
+L1:
+```
+
+O ciclo **``for``** segue uma lógica semelhante, mas com controle automático de uma variável de iteração.
+
+**Exemplo de for:**
+```pascal
+for i := 1 to 5 do
+  writeln(i);
+```
+
+Gera o código VM:
+```
+PUSHI 1
+STOREG 0   // i := 1
+L0:
+PUSHG 0    // i
+PUSHI 5    // 5
+INFEQ      // i <= 5
+JZ L1      // sair se falso
+PUSHG 0
+WRITEI
+PUSHG 0
+PUSHI 1
+ADD
+STOREG 0   // i := i + 1
+JUMP L0
+L1:
+```
 
 ## 7. Fluxo de Execução
 1.  Leitura do ficheiro com o código Pascal.  
@@ -161,7 +321,87 @@ O ciclo **``for``** segue uma lógica semelhante, mas com controle automático d
 5.  Geração de código
     - com base na árvore sintática já validada é gerado código para ser utilizado na VM.
 
-## 8. Como executar
+## 8. Exemplos
+
+### Exemplo 1: Array e Ciclo For
+
+**Código Pascal:**
+```pascal
+program arrays;
+var nums: array[1..3] of integer;
+var i: integer;
+begin
+  for i := 1 to 3 do
+    nums[i] := i * 2;
+  
+  for i := 1 to 3 do
+    writeln(nums[i]);
+end.
+```
+
+**Código VM Gerado:**
+```
+// Programa: arrays
+
+// Declaração do array nums
+PUSHI 3
+ALLOCN
+STOREG 0
+
+// Declaração da variável i
+PUSHI 0
+STOREG 1
+START
+
+// for i := 1 to 3 do nums[i] := i * 2
+PUSHI 1
+STOREG 1
+L0:
+PUSHG 1
+PUSHI 3
+INFEQ
+JZ L1
+PUSHG 0
+PUSHG 1
+PUSHI 1
+SUB
+PUSHG 1
+PUSHI 2
+MUL
+STOREN
+PUSHG 1
+PUSHI 1
+ADD
+STOREG 1
+JUMP L0
+L1:
+
+// for i := 1 to 3 do writeln(nums[i])
+PUSHI 1
+STOREG 1
+L2:
+PUSHG 1
+PUSHI 3
+INFEQ
+JZ L3
+PUSHG 0
+PUSHG 1
+PUSHI 1
+SUB
+LOADN
+WRITEI
+WRITELN
+PUSHG 1
+PUSHI 1
+ADD
+STOREG 1
+JUMP L2
+L3:
+
+STOP
+```
+
+## 9. Como Executar
     python3 main.py <pascal_file>
 
 Flags opcionais:
